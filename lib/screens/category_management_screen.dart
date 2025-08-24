@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/expense_category.dart';
 import '../providers/expense_provider.dart';
 import '../widgets/add_category_dialog.dart';
 

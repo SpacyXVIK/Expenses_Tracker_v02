@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 import '../screens/add_expense_screen.dart';
-import '../screens/category_management_screen.dart';
-import '../screens/tag_management_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
-import '../models/expense.dart';
-import '../models/expense_category.dart';
+import '../models/expense.dart';     
 
 class HomeScreen extends StatefulWidget {
   @override
