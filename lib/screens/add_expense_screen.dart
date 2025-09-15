@@ -4,12 +4,11 @@ import 'package:intl/intl.dart';
 import '../models/expense.dart';
 import '../providers/expense_provider.dart';
 import '../widgets/add_category_dialog.dart';
-import '../widgets/add_tag_dialog.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  final Expense? initialExpense;
+  final Expense? expenseToEdit;
 
-  const AddExpenseScreen({Key? key, this.initialExpense}) : super(key: key);
+  const AddExpenseScreen({Key? key, this.expenseToEdit}) : super(key: key);
 
   @override
   _AddExpenseScreenState createState() => _AddExpenseScreenState();
@@ -20,21 +19,19 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   late TextEditingController _payeeController;
   late TextEditingController _noteController;
   String? _selectedCategoryId;
-  String? _selectedTagId;
   DateTime _selectedDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
     _amountController = TextEditingController(
-        text: widget.initialExpense?.amount.toString() ?? '');
+        text: widget.expenseToEdit?.amount.toString() ?? '');
     _payeeController =
-        TextEditingController(text: widget.initialExpense?.payee ?? '');
+        TextEditingController(text: widget.expenseToEdit?.payee ?? '');
     _noteController =
-        TextEditingController(text: widget.initialExpense?.note ?? '');
-    _selectedDate = widget.initialExpense?.date ?? DateTime.now();
-    _selectedCategoryId = widget.initialExpense?.categoryId;
-    _selectedTagId = widget.initialExpense?.tag;
+        TextEditingController(text: widget.expenseToEdit?.notes ?? '');
+    _selectedDate = widget.expenseToEdit?.date ?? DateTime.now();
+    _selectedCategoryId = widget.expenseToEdit?.categoryId;
   }
 
   @override
@@ -43,7 +40,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            widget.initialExpense == null ? 'Add Expense' : 'Edit Expense'),
+            widget.expenseToEdit == null ? 'Add Expense' : 'Edit Expense'),
         backgroundColor: Colors.deepPurple[400],
       ),
       body: SingleChildScrollView(
@@ -55,17 +52,10 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             buildTextField(_payeeController, 'Payee', TextInputType.text),
             buildTextField(_noteController, 'note', TextInputType.text),
             buildDateField(_selectedDate),
-            // buildCategoryDropdown(expenseProvider),
-            // buildTagDropdown(expenseProvider),
             Padding(
               padding: const EdgeInsets.only(
                   bottom: 8.0), // Adjust the padding as needed
               child: buildCategoryDropdown(expenseProvider),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  bottom: 8.0), // Adjust the padding as needed
-              child: buildTagDropdown(expenseProvider),
             ),
           ],
         ),
@@ -84,7 +74,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       ),
     );
   }
-  // Helper methods for building the form elements go here (omitted for brevity)
 
   void _saveExpense() {
     if (_amountController.text.isEmpty) {
@@ -94,14 +83,13 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     }
 
     final expense = Expense(
-      id: widget.initialExpense?.id ??
+      id: widget.expenseToEdit?.id ??
           DateTime.now().toString(), // Assuming you generate IDs like this
       amount: double.parse(_amountController.text),
       categoryId: _selectedCategoryId!,
       payee: _payeeController.text,
-      note: _noteController.text,
+      notes: _noteController.text,
       date: _selectedDate,
-      tag: _selectedTagId!,
     );
 
     // Calling the provider to add or update the expense
@@ -180,41 +168,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         )),
       decoration: InputDecoration(
         labelText: 'Category',
-        border: OutlineInputBorder(),
-      ),
-    );
-  }
-
-// Helper method to build the tag dropdown
-  Widget buildTagDropdown(ExpenseProvider provider) {
-    return DropdownButtonFormField<String>(
-      value: _selectedTagId,
-      onChanged: (newValue) {
-        if (newValue == 'New') {
-          showDialog(
-            context: context,
-            builder: (context) => AddTagDialog(onAdd: (newTag) {
-              provider.addTag(newTag); // Assuming you have an `addTag` method.
-              setState(
-                  () => _selectedTagId = newTag.id); // Update selected tag ID
-            }),
-          );
-        } else {
-          setState(() => _selectedTagId = newValue);
-        }
-      },
-      items: provider.tags.map<DropdownMenuItem<String>>((tag) {
-        return DropdownMenuItem<String>(
-          value: tag.id,
-          child: Text(tag.name),
-        );
-      }).toList()
-        ..add(DropdownMenuItem(
-          value: "New",
-          child: Text("Add New Tag"),
-        )),
-      decoration: InputDecoration(
-        labelText: 'Tag',
         border: OutlineInputBorder(),
       ),
     );

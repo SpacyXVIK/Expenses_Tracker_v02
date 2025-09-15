@@ -38,6 +38,7 @@ dependencies:
   provider: ^6.1.5+1
   collection: ^1.19.1
   localstorage: ^6.0.0
+  fl_chart: ^0.64.0
 
 dev_dependencies:
   flutter_test:

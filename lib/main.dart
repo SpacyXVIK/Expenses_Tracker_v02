@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'providers/expense_provider.dart';
 import 'screens/category_management_screen.dart';
 import 'screens/home_screen.dart';
-import 'screens/tag_management_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,8 +32,6 @@ class MyApp extends StatelessWidget {
           '/': (context) => HomeScreen(), // Main entry point, HomeScreen
           '/manage_categories': (context) =>
               CategoryManagementScreen(), // Route for managing categories
-          '/manage_tags': (context) =>
-              TagManagementScreen(), // Route for managing tags
         },
         // Removed 'home:' since 'initialRoute' is used to define the home route
       ),

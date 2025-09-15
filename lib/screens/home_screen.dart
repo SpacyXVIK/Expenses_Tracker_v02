@@ -4,7 +4,10 @@ import '../providers/expense_provider.dart';
 import '../screens/add_expense_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
-import '../models/expense.dart';     
+import '../models/expense.dart';
+import '../widgets/expense_search_bar.dart';
+import '../widgets/analytics_dashboard.dart';
+import '../widgets/spending_trends_chart.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -14,11 +17,17 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String _selectedFilter = 'All';
+  DateTime? _startDate;
+  DateTime? _endDate;
+
+  // Filter options
+  final List<String> _filterOptions = ['All', 'Today', 'This Week', 'Custom'];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 4, vsync: this); // Changed to 4 tabs
   }
 
   @override
@@ -31,19 +40,52 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Expense Tracker"),
+        title: Text('Expense Tracker'),
         backgroundColor: Colors.deepPurple[800],
-        foregroundColor: Colors.white,
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.white,
+          indicatorColor: Colors.yellow,
           labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
+          isScrollable: true, // Add this to prevent tab overflow
           tabs: [
-            Tab(text: "By Date"),
-            Tab(text: "By Category"),
+            Tab(icon: Icon(Icons.list), text: 'By Date'),
+            Tab(icon: Icon(Icons.category), text: 'By Category'),
+            Tab(icon: Icon(Icons.analytics), text: 'Analytics'),
+            Tab(icon: Icon(Icons.trending_up), text: 'Trends'), // New tab
           ],
         ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: Icon(Icons.filter_list),
+            onSelected: (String value) async {
+              setState(() => _selectedFilter = value);
+              if (value == 'Custom') {
+                await _showDateRangePicker(context);
+              } else {
+                _updateFilterDates(value);
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return _filterOptions.map((String option) {
+                return PopupMenuItem<String>(
+                  value: option,
+                  child: Row(
+                    children: [
+                      Icon(
+                        option == _selectedFilter
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_unchecked,
+                        color: Colors.deepPurple,
+                      ),
+                      SizedBox(width: 8),
+                      Text(option),
+                    ],
+                  ),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -64,22 +106,23 @@ class _HomeScreenState extends State<HomeScreen>
                 Navigator.pushNamed(context, '/manage_categories');
               },
             ),
-            ListTile(
-              leading: Icon(Icons.tag, color: Colors.deepPurple),
-              title: Text('Manage Tags'),
-              onTap: () {
-                Navigator.pop(context); // This closes the drawer
-                Navigator.pushNamed(context, '/manage_tags');
-              },
-            ),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          buildExpensesByDate(context),
-          buildExpensesByCategory(context),
+          ExpenseSearchBar(),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                buildExpensesByDate(context),
+                buildExpensesByCategory(context),
+                AnalyticsDashboard(),
+                SpendingTrendsChart(), // New tab view
+              ],
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -94,24 +137,82 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  void _updateFilterDates(String filter) {
+    setState(() {
+      switch (filter) {
+        case 'Today':
+          _startDate = DateTime.now().subtract(Duration(hours: 24));
+          _endDate = DateTime.now();
+          break;
+        case 'This Week':
+          _startDate = DateTime.now().subtract(Duration(days: 7));
+          _endDate = DateTime.now();
+          break;
+        case 'All':
+          _startDate = null;
+          _endDate = null;
+          break;
+        default:
+          // Custom dates are handled by date picker
+          break;
+      }
+    });
+  }
+
+  Future<void> _showDateRangePicker(BuildContext context) async {
+    DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDateRange: _startDate != null && _endDate != null
+          ? DateTimeRange(start: _startDate!, end: _endDate!)
+          : null,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.deepPurple,
+              onPrimary: Colors.white,
+              surface: Colors.deepPurple,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _startDate = picked.start;
+        _endDate = picked.end;
+      });
+    }
+  }
+
   Widget buildExpensesByDate(BuildContext context) {
     return Consumer<ExpenseProvider>(
       builder: (context, provider, child) {
-        if (provider.expenses.isEmpty) {
+        var filteredExpenses = provider.getFilteredExpenses();
+        
+        if (filteredExpenses.isEmpty) {
           return Center(
             child: Text(
-              "Click the + button to record expenses.",
+              provider.searchQuery.isEmpty
+                  ? "Click the + button to record expenses."
+                  : "No expenses found matching '${provider.searchQuery}'",
               style: TextStyle(color: Colors.grey[600], fontSize: 18),
             ),
           );
         }
+
         return ListView.builder(
-          itemCount: provider.expenses.length,
+          itemCount: filteredExpenses.length,
           itemBuilder: (context, index) {
-            final expense = provider.expenses[index];
-            String formattedDate = DateFormat(
-              'MMM dd, yyyy',
-            ).format(expense.date);
+            final expense = filteredExpenses[index];
+            String formattedDateTime = 
+                DateFormat('MMM dd, yyyy - hh:mm a').format(expense.date);
+            
             return Dismissible(
               key: Key(expense.id),
               direction: DismissDirection.endToStart,
@@ -124,41 +225,56 @@ class _HomeScreenState extends State<HomeScreen>
                 alignment: Alignment.centerRight,
                 child: Icon(Icons.delete, color: Colors.white),
               ),
-              child: Card(
-                color: Colors.greenAccent,
-                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                child: ListTile(
-                  title: Row(
-                    children: [
-                      Text(
-                        "${expense.payee}",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddExpenseScreen(
+                        expenseToEdit: expense,
                       ),
+                    ),
+                  );
+                },
+                child: Card(
+                  color: Colors.greenAccent,
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                  child: ListTile(
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "${expense.payee}",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
 
-                      Text(
-                        " - Rs.${expense.amount.toStringAsFixed(2)}",
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          " - Rs.${expense.amount.toStringAsFixed(2)}",
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    subtitle: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          formattedDateTime,
+                        ), // Updated to show date and time
+                        Text(
+                          "- Category: ${getCategoryNameById(context, expense.categoryId)}",
+                        ),
+                      ],
+                    ),
+                    isThreeLine: true,
                   ),
-                  subtitle: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("$formattedDate"),
-                      Text(
-                        "- Category: ${getCategoryNameById(context, expense.categoryId)}",
-                      ),
-                    ],
-                  ),
-                  isThreeLine: true,
                 ),
               ),
             );
@@ -171,17 +287,22 @@ class _HomeScreenState extends State<HomeScreen>
   Widget buildExpensesByCategory(BuildContext context) {
     return Consumer<ExpenseProvider>(
       builder: (context, provider, child) {
-        if (provider.expenses.isEmpty) {
+        // Use filtered expenses instead of all expenses
+        var filteredExpenses = provider.getFilteredExpenses();
+        
+        if (filteredExpenses.isEmpty) {
           return Center(
             child: Text(
-              "Click the + button to record expenses.",
+              provider.searchQuery.isEmpty
+                  ? "Click the + button to record expenses."
+                  : "No expenses found matching '${provider.searchQuery}'",
               style: TextStyle(color: Colors.grey[600], fontSize: 18),
             ),
           );
         }
 
         // Grouping expenses by category
-        var grouped = groupBy(provider.expenses, (Expense e) => e.categoryId);
+        var grouped = groupBy(filteredExpenses, (Expense e) => e.categoryId);
         return ListView(
           children: grouped.entries.map((entry) {
             String categoryName = getCategoryNameById(
@@ -197,13 +318,23 @@ class _HomeScreenState extends State<HomeScreen>
               children: <Widget>[
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text(
-                    "$categoryName - Total: \$${total.toStringAsFixed(2)}",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.deepPurple,
-                    ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        getCategoryIconById(context, entry.key),
+                        color: Colors.deepPurple,
+                        size: 24,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        "$categoryName - Total: \$${total.toStringAsFixed(2)}",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepPurple,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 ListView.builder(
@@ -214,16 +345,32 @@ class _HomeScreenState extends State<HomeScreen>
                   itemCount: entry.value.length,
                   itemBuilder: (context, index) {
                     Expense expense = entry.value[index];
-                    return ListTile(
-                      leading: Icon(
-                        Icons.monetization_on,
-                        color: Colors.deepPurple,
-                      ),
-                      title: Text(
-                        "${expense.payee} - \$${expense.amount.toStringAsFixed(2)}",
-                      ),
-                      subtitle: Text(
-                        DateFormat('MMM dd, yyyy').format(expense.date),
+                    // Update date format to include time
+                    String formattedDateTime = DateFormat(
+                      'MMM dd, yyyy - hh:mm a',
+                    ).format(expense.date);
+
+                    return InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AddExpenseScreen(expenseToEdit: expense),
+                          ),
+                        );
+                      },
+                      child: ListTile(
+                        leading: Icon(
+                          Icons.monetization_on,
+                          color: Colors.deepPurple,
+                        ),
+                        title: Text(
+                          "${expense.payee} - \$${expense.amount.toStringAsFixed(2)}",
+                        ),
+                        subtitle: Text(
+                          formattedDateTime,
+                        ), // Updated to show date and time
                       ),
                     );
                   },
@@ -243,5 +390,13 @@ class _HomeScreenState extends State<HomeScreen>
       listen: false,
     ).categories.firstWhere((cat) => cat.id == categoryId);
     return category.name;
+  }
+
+  IconData getCategoryIconById(BuildContext context, String categoryId) {
+    var category = Provider.of<ExpenseProvider>(
+      context,
+      listen: false,
+    ).categories.firstWhere((cat) => cat.id == categoryId);
+    return category.icon;
   }
 }

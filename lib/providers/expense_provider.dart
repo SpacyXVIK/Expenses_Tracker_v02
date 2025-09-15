@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../models/expense.dart';
 import '../models/expense_category.dart';
-import '../models/tag.dart';
 import 'package:localstorage/localstorage.dart';
 import 'dart:convert';
 
@@ -12,36 +12,19 @@ class ExpenseProvider with ChangeNotifier {
 
   // List of categories
   final List<ExpenseCategory> _categories = [
-    ExpenseCategory(id: '1', name: 'Food', isDefault: true),
-    ExpenseCategory(id: '2', name: 'Transport', isDefault: true),
-    ExpenseCategory(id: '3', name: 'Entertainment', isDefault: true),
-    ExpenseCategory(id: '4', name: 'Office', isDefault: true),
-    ExpenseCategory(id: '5', name: 'Gym', isDefault: true),
-  ];
-
-  // List of tags
-  final List<Tag> _tags = [
-    Tag(id: '1', name: 'Breakfast'),
-    Tag(id: '2', name: 'Lunch'),
-    Tag(id: '3', name: 'Dinner'),
-    Tag(id: '4', name: 'Treat'),
-    Tag(id: '5', name: 'Cafe'),
-    Tag(id: '6', name: 'Restaurant'),
-    Tag(id: '7', name: 'Train'),
-    Tag(id: '8', name: 'Vacation'),
-    Tag(id: '9', name: 'Birthday'),
-    Tag(id: '10', name: 'Diet'),
-    Tag(id: '11', name: 'MovieNight'),
-    Tag(id: '12', name: 'Tech'),
-    Tag(id: '13', name: 'CarStuff'),
-    Tag(id: '14', name: 'SelfCare'),
-    Tag(id: '15', name: 'Streaming'),
+    ExpenseCategory(id: '1', name: 'Food', isDefault: true, icon: Icons.restaurant),
+    ExpenseCategory(id: '2', name: 'Transport', isDefault: true, icon: Icons.directions_car),
+    ExpenseCategory(id: '3', name: 'Entertainment', isDefault: true, icon: Icons.movie),
+    ExpenseCategory(id: '4', name: 'Office', isDefault: true, icon: Icons.work),
+    ExpenseCategory(id: '5', name: 'Gym', isDefault: true, icon: Icons.fitness_center),
   ];
 
   // Getters
   List<Expense> get expenses => _expenses;
   List<ExpenseCategory> get categories => _categories;
-  List<Tag> get tags => _tags;
+
+  String _searchQuery = '';
+  String get searchQuery => _searchQuery;
 
   ExpenseProvider(this.storage) {
     _loadExpensesFromStorage();
@@ -106,23 +89,35 @@ class ExpenseProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Add a tag
-  void addTag(Tag tag) {
-    if (!_tags.any((t) => t.name == tag.name)) {
-      _tags.add(tag);
-      notifyListeners();
-    }
-  }
-
-  // Delete a tag
-  void deleteTag(String id) {
-    _tags.removeWhere((tag) => tag.id == id);
-    notifyListeners();
-  }
-
   void removeExpense(String id) {
     _expenses.removeWhere((expense) => expense.id == id);
     _saveExpensesToStorage(); // Save the updated list to local storage
     notifyListeners();
+  }
+
+  // Search expenses by text
+  List<Expense> getFilteredExpenses() {
+    if (_searchQuery.isEmpty) {
+      return _expenses;
+    }
+
+    final query = _searchQuery.toLowerCase();
+    return _expenses.where((expense) {
+      return expense.payee.toLowerCase().contains(query) ||
+             (expense.notes?.toLowerCase().contains(query) ?? false) ||
+             getCategoryById(expense.categoryId).name.toLowerCase().contains(query);
+    }).toList();
+  }
+
+  void updateSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
+
+  ExpenseCategory getCategoryById(String id) {
+    return _categories.firstWhere(
+      (category) => category.id == id,
+      orElse: () => _categories.first,
+    );
   }
 }
