@@ -1,16 +1,94 @@
-# expense_tracker_v01
+# expense_tracker_v02
 
-A new Flutter project.
+📊 Expense Tracker App
 
-## Getting Started
+A Flutter-based Expense Tracker that helps users manage their daily expenses, track recurring expenses, set monthly budgets, and secure the app with fingerprint authentication.
+🚀 My Approach
 
-This project is a starting point for a Flutter application.
+I designed this app with a clean architecture in mind:
 
-A few resources to get you started if this is your first Flutter project:
+Hive is used for local storage of expenses, categories, recurring expenses, and settings (like fingerprint lock).
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Provider is used as the state management solution for efficient UI updates and reactive programming.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The app is modularized into models, providers, services, Widgets, and UI screens.
+
+Added biometric authentication for security.
+
+Implemented recurring expenses auto-generation logic to ensure expenses repeat based on frequency (weekly, monthly, yearly).
+
+🛠️ State Management
+
+Used Provider (ChangeNotifierProvider + Consumer) for:
+
+Managing expense list and categories
+
+Updating recurring expenses
+
+Handling theme switching
+
+Managing app settings (biometric)
+
+Why Provider?
+✅ Simple to implement
+✅ Lightweight and recommended by the Flutter team
+✅ Easy to scale for this app’s use-case
+
+⚡ Challenges & Solutions
+1. Handling Recurring Expenses Automatically
+
+Challenge: Needed to automatically generate recurring expenses when due.
+
+Solution: Added a _checkAndAddRecurringExpenses() function inside ExpenseProvider that runs at startup, checks due dates, and creates new expenses accordingly.
+
+2. Fingerprint Authentication
+
+Challenge: Securely locking/unlocking the app.
+
+Solution: Used the local_auth package and stored the fingerprint lock setting in Hive (settings box). Added a lock screen that runs before accessing the app if biometric is enabled.
+
+3. Hive Box Conflicts
+
+Challenge: Hive threw errors when the same box (settings) was opened multiple times in different places.
+
+Solution: Created a singleton Hive service to open the box only once and provide a shared instance throughout the app.
+
+📦 Packages Used
+
+provider – State management
+
+hive & hive_flutter – Local storage
+
+local_auth – Biometric authentication
+
+intl – Multi-language support
+    
+path_provider- finding commonly used locations 
+
+fl_chart- shwing charts
+  
+excel- Exporting data in excel form
+  
+file_picker- to pick a file from system
+  
+go_router- for smooth transition effects
+  
+📷 Features
+
+✅ Add/Edit/Delete expenses
+
+✅ Show trnding expenses
+
+✅ Show expense distribution by category
+
+✅ Recurring expenses with auto-generation
+
+✅ Monthly budget tracking
+
+✅ Export/Import expenses via Excel
+
+✅ Fingerprint lock
+
+✅ Multi-language support (English + Hindi) [Remaining still working on it]
+
+✅ Dark/Light theme toggle
