@@ -1,15 +1,19 @@
+import 'package:expense_tracker_v02/screens/setting_screen.dart';
+import 'package:expense_tracker_v02/widgets/animated_category_selector.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
-import '../screens/add_expense_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:collection/collection.dart';
-import '../models/expense.dart';
 import '../widgets/expense_search_bar.dart';
 import '../widgets/analytics_dashboard.dart';
 import '../widgets/spending_trends_chart.dart';
+import '../widgets/monthly_budget_widget.dart'; // Import the new widget
+import '../providers/theme_provider.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -23,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   // Filter options
   final List<String> _filterOptions = ['All', 'Today', 'This Week', 'Custom'];
+  String? _selectedCategoryId;
 
   @override
   void initState() {
@@ -40,14 +45,14 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expense Tracker'),
+        title: const Text('Expense Tracker'),
         backgroundColor: Colors.deepPurple[800],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.yellow,
           labelColor: Colors.white,
           isScrollable: true, // Add this to prevent tab overflow
-          tabs: [
+          tabs: const [
             Tab(icon: Icon(Icons.list), text: 'By Date'),
             Tab(icon: Icon(Icons.category), text: 'By Category'),
             Tab(icon: Icon(Icons.analytics), text: 'Analytics'),
@@ -56,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         actions: [
           PopupMenuButton<String>(
-            icon: Icon(Icons.filter_list),
+            icon: const Icon(Icons.filter_list, color: Colors.white,),
             onSelected: (String value) async {
               setState(() => _selectedFilter = value);
               if (value == 'Custom') {
@@ -77,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen>
                             : Icons.radio_button_unchecked,
                         color: Colors.deepPurple,
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(option),
                     ],
                   ),
@@ -85,28 +90,111 @@ class _HomeScreenState extends State<HomeScreen>
               }).toList();
             },
           ),
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              final provider = Provider.of<ExpenseProvider>(context, listen: false);
+              if (value == 'export') {
+                try {
+                  final filePath = await provider.exportToExcel();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Exported to: $filePath')),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Export failed: $e')),
+                  );
+                }
+              } else if (value == 'import') {
+                try {
+                  await provider.importFromExcel();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Import successful')),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Import failed: $e')),
+                  );
+                }
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(
+                value: 'export',
+                child: ListTile(
+                  leading: Icon(Icons.upload_file),
+                  title: Text('Export to Excel'),
+                ),
+              ),
+              PopupMenuItem(
+                value: 'import',
+                child: ListTile(
+                  leading: Icon(Icons.download_rounded),
+                  title: Text('Import from Excel'),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.deepPurple),
-              child: Text(
-                'Menu',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.category, color: Colors.deepPurple),
-              title: Text('Manage Categories'),
-              onTap: () {
-                Navigator.pop(context); // This closes the drawer
-                Navigator.pushNamed(context, '/manage_categories');
-              },
-            ),
-          ],
+        child: Consumer<ThemeProvider>(
+          builder: (context, themeProvider, _) {
+            return ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  child: const Text(
+                    'Menu',
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.category),
+                  title: const Text('Manage Categories'),
+                  onTap: () {
+                    Navigator.pop(context); // Close drawer
+                    context.pushNamed('manage-categories');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.repeat),
+                  title: const Text('Recurring Expenses'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.pushNamed('recurring-expenses');
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                  ),
+                  title: Text(
+                    themeProvider.isDarkMode ? 'Dark Mode' : 'Light Mode',
+                  ),
+                  trailing: Switch(
+                    value: themeProvider.isDarkMode,
+                    onChanged: (_) {
+                      themeProvider.toggleTheme();
+                    },
+                  ),
+                  onTap: () {
+                    themeProvider.toggleTheme();
+                  },
+                ),ListTile(
+            leading: Icon(Icons.settings),
+            title: Text("Settings"),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => SettingsScreen()),
+              );
+            },
+          ),
+              ],
+            );
+          },
         ),
       ),
       body: Column(
@@ -127,12 +215,9 @@ class _HomeScreenState extends State<HomeScreen>
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => AddExpenseScreen()),
-        ),
+        onPressed: () => context.pushNamed('add-expense'),
         tooltip: 'Add Expense',
-        child: Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -141,11 +226,11 @@ class _HomeScreenState extends State<HomeScreen>
     setState(() {
       switch (filter) {
         case 'Today':
-          _startDate = DateTime.now().subtract(Duration(hours: 24));
+          _startDate = DateTime.now().subtract(const Duration(hours: 24));
           _endDate = DateTime.now();
           break;
         case 'This Week':
-          _startDate = DateTime.now().subtract(Duration(days: 7));
+          _startDate = DateTime.now().subtract(const Duration(days: 7));
           _endDate = DateTime.now();
           break;
         case 'All':
@@ -170,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen>
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
+            colorScheme: const ColorScheme.light(
               primary: Colors.deepPurple,
               onPrimary: Colors.white,
               surface: Colors.deepPurple,
@@ -206,79 +291,83 @@ class _HomeScreenState extends State<HomeScreen>
           );
         }
 
-        return ListView.builder(
-          itemCount: filteredExpenses.length,
-          itemBuilder: (context, index) {
-            final expense = filteredExpenses[index];
-            String formattedDateTime = 
-                DateFormat('MMM dd, yyyy - hh:mm a').format(expense.date);
-            
-            return Dismissible(
-              key: Key(expense.id),
-              direction: DismissDirection.endToStart,
-              onDismissed: (direction) {
-                provider.removeExpense(expense.id);
-              },
-              background: Container(
-                color: Colors.red,
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                alignment: Alignment.centerRight,
-                child: Icon(Icons.delete, color: Colors.white),
-              ),
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddExpenseScreen(
-                        expenseToEdit: expense,
+        return Column(
+          children: [
+            MonthlyBudgetWidget(), // Add this at the top
+            Expanded(
+              child: ListView.builder(
+                itemCount: filteredExpenses.length,
+                itemBuilder: (context, index) {
+                  final expense = filteredExpenses[index];
+                  String formattedDateTime = 
+                      DateFormat('MMM dd, yyyy - hh:mm a').format(expense.date);
+                  
+                  return Dismissible(
+                    key: Key(expense.id),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (direction) {
+                      // Change removeExpense to deleteExpense
+                      provider.deleteExpense(expense.id);
+                    },
+                    background: Container(
+                      color: Colors.red,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      alignment: Alignment.centerRight,
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        context.pushNamed(
+                          'add-expense',
+                          extra: expense,
+                        );
+                      },
+                      child: Card(
+                        color: Colors.greenAccent,
+                        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                        child: ListTile(
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                expense.payee,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+
+                              Text(
+                                " - Rs.${expense.amount.toStringAsFixed(2)}",
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          subtitle: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                formattedDateTime,
+                              ), // Updated to show date and time
+                              Text(
+                                "- Category: ${getCategoryNameById(context, expense.categoryId)}",
+                              ),
+                            ],
+                          ),
+                          isThreeLine: true,
+                        ),
                       ),
                     ),
                   );
                 },
-                child: Card(
-                  color: Colors.greenAccent,
-                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                  child: ListTile(
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "${expense.payee}",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-
-                        Text(
-                          " - Rs.${expense.amount.toStringAsFixed(2)}",
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    subtitle: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          formattedDateTime,
-                        ), // Updated to show date and time
-                        Text(
-                          "- Category: ${getCategoryNameById(context, expense.categoryId)}",
-                        ),
-                      ],
-                    ),
-                    isThreeLine: true,
-                  ),
-                ),
               ),
-            );
-          },
+            ),
+          ],
         );
       },
     );
@@ -287,7 +376,6 @@ class _HomeScreenState extends State<HomeScreen>
   Widget buildExpensesByCategory(BuildContext context) {
     return Consumer<ExpenseProvider>(
       builder: (context, provider, child) {
-        // Use filtered expenses instead of all expenses
         var filteredExpenses = provider.getFilteredExpenses();
         
         if (filteredExpenses.isEmpty) {
@@ -301,83 +389,65 @@ class _HomeScreenState extends State<HomeScreen>
           );
         }
 
-        // Grouping expenses by category
-        var grouped = groupBy(filteredExpenses, (Expense e) => e.categoryId);
-        return ListView(
-          children: grouped.entries.map((entry) {
-            String categoryName = getCategoryNameById(
-              context,
-              entry.key,
-            ); // Ensure you implement this function
-            double total = entry.value.fold(
-              0.0,
-              (double prev, Expense element) => prev + element.amount,
-            );
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        getCategoryIconById(context, entry.key),
-                        color: Colors.deepPurple,
-                        size: 24,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        "$categoryName - Total: \$${total.toStringAsFixed(2)}",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                ListView.builder(
-                  physics:
-                      NeverScrollableScrollPhysics(), // to disable scrolling within the inner list view
-                  shrinkWrap:
-                      true, // necessary to integrate a ListView within another ListView
-                  itemCount: entry.value.length,
-                  itemBuilder: (context, index) {
-                    Expense expense = entry.value[index];
-                    // Update date format to include time
-                    String formattedDateTime = DateFormat(
-                      'MMM dd, yyyy - hh:mm a',
-                    ).format(expense.date);
+        var selectedCategory = _selectedCategoryId != null 
+            ? provider.categories.firstWhere(
+                (cat) => cat.id == _selectedCategoryId,
+                orElse: () => provider.categories.first)
+            : null;
 
-                    return InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                AddExpenseScreen(expenseToEdit: expense),
+        // Filter expenses by selected category
+        if (_selectedCategoryId != null) {
+          filteredExpenses = filteredExpenses
+              .where((expense) => expense.categoryId == _selectedCategoryId)
+              .toList();
+        }
+
+        return Column(
+          children: [
+            AnimatedCategorySelector(
+              categories: provider.categories,
+              selectedCategory: selectedCategory,
+              onSelect: (category) {
+                setState(() {
+                  _selectedCategoryId = 
+                      _selectedCategoryId == category.id ? null : category.id;
+                });
+              },
+            ),
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                child: ListView.builder(
+                  key: ValueKey(_selectedCategoryId),
+                  itemCount: filteredExpenses.length,
+                  itemBuilder: (context, index) {
+                    final expense = filteredExpenses[index];
+                    String formattedDateTime = 
+                        DateFormat('MMM dd, yyyy - hh:mm a').format(expense.date);
+
+                    return AnimatedScale(
+                      duration: Duration(milliseconds: 300),
+                      scale: 1.0,
+                      child: AnimatedOpacity(
+                        duration: Duration(milliseconds: 300),
+                        opacity: 1.0,
+                        child: ListTile(
+                          title: Text(
+                            "${expense.payee} - \$${expense.amount.toStringAsFixed(2)}",
                           ),
-                        );
-                      },
-                      child: ListTile(
-                        leading: Icon(
-                          Icons.monetization_on,
-                          color: Colors.deepPurple,
+                          subtitle: Text(formattedDateTime),
+                          leading: Icon(
+                            getCategoryIconById(context, expense.categoryId),
+                            color: Theme.of(context).primaryColor,
+                          ),
                         ),
-                        title: Text(
-                          "${expense.payee} - \$${expense.amount.toStringAsFixed(2)}",
-                        ),
-                        subtitle: Text(
-                          formattedDateTime,
-                        ), // Updated to show date and time
                       ),
                     );
                   },
                 ),
-              ],
-            );
-          }).toList(),
+              ),
+            ),
+          ],
         );
       },
     );

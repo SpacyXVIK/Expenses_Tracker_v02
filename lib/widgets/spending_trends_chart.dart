@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import '../providers/expense_provider.dart';
 
 class SpendingTrendsChart extends StatefulWidget {
+  const SpendingTrendsChart({super.key});
+
   @override
   _SpendingTrendsChartState createState() => _SpendingTrendsChartState();
 }
@@ -19,13 +21,13 @@ class _SpendingTrendsChartState extends State<SpendingTrendsChart> {
       builder: (context, provider, child) {
         return Container(
           height: 400,
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'Spending Trends',
                     style: TextStyle(
                       fontSize: 18,
@@ -49,7 +51,7 @@ class _SpendingTrendsChartState extends State<SpendingTrendsChart> {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Expanded(
                 child: _buildLineChart(provider),
               ),
@@ -62,7 +64,7 @@ class _SpendingTrendsChartState extends State<SpendingTrendsChart> {
 
   Widget _buildLineChart(ExpenseProvider provider) {
     if (provider.expenses.isEmpty) {
-      return Center(
+      return const Center(
         child: Text(
           'No expenses recorded yet',
           style: TextStyle(color: Colors.grey),
@@ -86,13 +88,13 @@ class _SpendingTrendsChartState extends State<SpendingTrendsChart> {
             sideTitles: SideTitles(
               showTitles: true,
               getTitlesWidget: (value, meta) {
-                if (value % 1 != 0) return Text('');
+                if (value % 1 != 0) return const Text('');
                 final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
                 return Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Text(
                     _getFormattedDate(date),
-                    style: TextStyle(fontSize: 10),
+                    style: const TextStyle(fontSize: 10),
                   ),
                 );
               },
@@ -103,7 +105,7 @@ class _SpendingTrendsChartState extends State<SpendingTrendsChart> {
               showTitles: true,
               getTitlesWidget: (value, meta) {
                 return Text('Rs.${value.toInt()}',
-                    style: TextStyle(fontSize: 10));
+                    style: const TextStyle(fontSize: 10));
               },
             ),
           ),

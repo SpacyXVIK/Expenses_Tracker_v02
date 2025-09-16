@@ -3,10 +3,12 @@ import 'package:provider/provider.dart';
 import '../providers/expense_provider.dart';
 
 class ExpenseSearchBar extends StatelessWidget {
+  const ExpenseSearchBar({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       color: Colors.deepPurple[50],
       child: TextField(
         onChanged: (value) {
@@ -15,17 +17,17 @@ class ExpenseSearchBar extends StatelessWidget {
         },
         decoration: InputDecoration(
           hintText: 'Search expenses...',
-          prefixIcon: Icon(Icons.search, color: Colors.deepPurple),
+          prefixIcon: const Icon(Icons.search, color: Colors.deepPurple),
           suffixIcon: Consumer<ExpenseProvider>(
             builder: (context, provider, child) {
               return provider.searchQuery.isNotEmpty
                   ? IconButton(
-                      icon: Icon(Icons.clear, color: Colors.deepPurple),
+                      icon: const Icon(Icons.clear, color: Colors.deepPurple),
                       onPressed: () {
                         provider.updateSearchQuery('');
                       },
                     )
-                  : SizedBox.shrink();
+                  : const SizedBox.shrink();
             },
           ),
           filled: true,
@@ -34,7 +36,7 @@ class ExpenseSearchBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
             borderSide: BorderSide.none,
           ),
-          contentPadding: EdgeInsets.symmetric(horizontal: 16),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
         ),
       ),
     );

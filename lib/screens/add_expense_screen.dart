@@ -44,11 +44,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         backgroundColor: Colors.deepPurple[400],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             buildTextField(_amountController, 'Amount',
-                TextInputType.numberWithOptions(decimal: true)),
+                const TextInputType.numberWithOptions(decimal: true)),
             buildTextField(_payeeController, 'Payee', TextInputType.text),
             buildTextField(_noteController, 'note', TextInputType.text),
             buildDateField(_selectedDate),
@@ -61,15 +61,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.deepPurple,
             foregroundColor: Colors.white,
-            minimumSize: Size(double.infinity, 50),
+            minimumSize: const Size(double.infinity, 50),
           ),
           onPressed: _saveExpense,
-          child: Text('Save Expense'),
+          child: const Text('Save Expense'),
         ),
       ),
     );
@@ -78,7 +78,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   void _saveExpense() {
     if (_amountController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please fill in all required fields!')));
+          const SnackBar(content: Text('Please fill in all required fields!')));
       return;
     }
 
@@ -107,7 +107,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
         keyboardType: type,
       ),
@@ -118,7 +118,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   Widget buildDateField(DateTime selectedDate) {
     return ListTile(
       title: Text("Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}"),
-      trailing: Icon(Icons.calendar_today),
+      trailing: const Icon(Icons.calendar_today),
       onTap: () async {
         final DateTime? picked = await showDatePicker(
           context: context,
@@ -162,11 +162,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
           child: Text(category.name),
         );
       }).toList()
-        ..add(DropdownMenuItem(
+        ..add(const DropdownMenuItem(
           value: "New",
           child: Text("Add New Category"),
         )),
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Category',
         border: OutlineInputBorder(),
       ),

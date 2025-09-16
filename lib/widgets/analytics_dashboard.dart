@@ -5,6 +5,8 @@ import '../providers/expense_provider.dart';
 import '../models/expense_category.dart';
 
 class AnalyticsDashboard extends StatelessWidget {
+  const AnalyticsDashboard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -31,7 +33,7 @@ class AnalyticsDashboard extends StatelessWidget {
               value: entry.value,
               title: '${category.name}\n${percentage.toStringAsFixed(1)}%',
               radius: 100,
-              titleStyle: TextStyle(
+              titleStyle: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -41,10 +43,10 @@ class AnalyticsDashboard extends StatelessWidget {
 
           return Container(
             height: 400,
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                Text(
+                const Text(
                   'Expense Distribution by Category',
                   style: TextStyle(
                     fontSize: 18,
@@ -52,10 +54,10 @@ class AnalyticsDashboard extends StatelessWidget {
                     color: Colors.deepPurple,
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Expanded(
                   child: sections.isEmpty
-                      ? Center(
+                      ? const Center(
                           child: Text(
                             'No expenses recorded yet',
                             style: TextStyle(color: Colors.grey),

@@ -4,7 +4,7 @@ class IconPicker extends StatelessWidget {
   final IconData selectedIcon;
   final Function(IconData) onIconSelected;
 
-  IconPicker({
+  IconPicker({super.key, 
     required this.selectedIcon,
     required this.onIconSelected,
   });
@@ -36,7 +36,7 @@ class IconPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
       shrinkWrap: true,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 5,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,

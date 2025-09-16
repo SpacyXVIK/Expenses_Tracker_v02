@@ -1,37 +1,26 @@
+import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 
+part 'expense_category.g.dart';
+
+@HiveType(typeId: 1)
 class ExpenseCategory {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String name;
+
+  @HiveField(2)
   final bool isDefault;
-  final IconData icon; // Add this
+
+  @HiveField(3)
+  final IconData icon;
 
   ExpenseCategory({
     required this.id,
     required this.name,
-    this.isDefault = false,
-    this.icon = Icons.category, // Default icon
+    required this.isDefault,
+    required this.icon,
   });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'isDefault': isDefault,
-      'iconCodePoint': icon.codePoint, // Store icon codePoint
-      'iconFontFamily': icon.fontFamily,
-    };
-  }
-
-  factory ExpenseCategory.fromJson(Map<String, dynamic> json) {
-    return ExpenseCategory(
-      id: json['id'],
-      name: json['name'],
-      isDefault: json['isDefault'] ?? false,
-      icon: IconData(
-        json['iconCodePoint'],
-        fontFamily: json['iconFontFamily'],
-      ),
-    );
-  }
 }

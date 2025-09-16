@@ -1,0 +1,8 @@
+{
+  "@@locale": "en",
+  "appTitle": "Expense Tracker",
+  "addExpense": "Add Expense",
+  "delete": "Delete",
+  "settings": "Settings",
+  "enableBiometric": "Enable Fingerprint Lock"
+}

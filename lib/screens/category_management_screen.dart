@@ -5,11 +5,13 @@ import '../widgets/add_category_dialog.dart';
 
 // Example for CategoryManagementScreen
 class CategoryManagementScreen extends StatelessWidget {
+  const CategoryManagementScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Manage Categories"),
+        title: const Text("Manage Categories"),
         backgroundColor: Colors.deepPurple, // Themed color similar to your inspirations
         foregroundColor: Colors.white,
       ),
@@ -22,7 +24,7 @@ class CategoryManagementScreen extends StatelessWidget {
               return ListTile(
                 title: Text(category.name),
                 trailing: IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
+                  icon: const Icon(Icons.delete, color: Colors.red),
                   onPressed: () {
                     provider.deleteCategory(category.id);
                   },
@@ -46,7 +48,7 @@ class CategoryManagementScreen extends StatelessWidget {
           );
         },
         tooltip: 'Add New Category',
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
