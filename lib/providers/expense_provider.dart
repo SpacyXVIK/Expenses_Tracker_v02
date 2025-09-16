@@ -4,6 +4,8 @@ import '../models/expense.dart';
 import '../models/expense_category.dart';
 import '../models/recurring_expense.dart';
 import '../services/excel_service.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+
 
 class ExpenseProvider with ChangeNotifier {
   late Box<Expense> _expenseBox;
@@ -110,6 +112,24 @@ class ExpenseProvider with ChangeNotifier {
     await _recurringExpenseBox.delete(id);
     await _loadRecurringExpenses();
   }
+
+  Future<void> scheduleDailyReminder() async {
+  await AwesomeNotifications().createNotification(
+    content: NotificationContent(
+      id: 1001,
+      channelKey: 'daily_reminder',
+      title: 'Expense Reminder 💰',
+      body: 'Don’t forget to log your expenses today!',
+      notificationLayout: NotificationLayout.Default,
+    ),
+    schedule: NotificationCalendar(
+      hour: 20,   // 8 PM
+      minute: 23,
+      second: 0,
+      repeats: true,
+    ),
+  );
+}
 
   List<Expense> getFilteredExpenses() {
     if (_searchQuery.isEmpty) {

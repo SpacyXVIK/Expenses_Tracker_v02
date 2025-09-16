@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+
 
 import 'adapters/icon_adapter.dart';
 import 'models/expense.dart';
@@ -26,6 +28,20 @@ Future<void> main() async {
    // ✅ Initialize SettingsProvider with Hive
   final settingsProvider = SettingsProvider();
   await settingsProvider.init();
+
+  // Initialize Awesome Notifications
+  AwesomeNotifications().initialize(
+    null, // icon (null uses app icon)
+    [
+      NotificationChannel(
+        channelKey: 'daily_reminder',
+        channelName: 'Daily Reminders',
+        channelDescription: 'Notification channel for daily expense reminders',
+        defaultColor: const Color(0xFF9D50DD),
+        importance: NotificationImportance.High,
+      ),
+    ],
+  );
 
 
   runApp(const MyApp());

@@ -89,6 +89,8 @@ go_router- for smooth transition effects
 
 ✅ Fingerprint lock
 
-✅ Multi-language support (English + Hindi) [Remaining still working on it]
-
 ✅ Dark/Light theme toggle
+
+✅ Multi-language support (English + Hindi) [*Remaining still working on it]
+
+✅ Notification reminder to log expenses [*Remaining still working on it]

@@ -10,6 +10,8 @@ import '../widgets/analytics_dashboard.dart';
 import '../widgets/spending_trends_chart.dart';
 import '../widgets/monthly_budget_widget.dart'; // Import the new widget
 import '../providers/theme_provider.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,6 +35,12 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this); // Changed to 4 tabs
+
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+    if (!isAllowed) {
+      AwesomeNotifications().requestPermissionToSendNotifications();
+    }
+  });
   }
 
   @override
@@ -40,6 +48,8 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController.dispose();
     super.dispose();
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
