@@ -29,10 +29,12 @@ Handling theme switching
 
 Managing app settings (biometric)
 
+Note- All Screenshots are provided inside the images folder, so please check out.
+
 Why Provider?
 ✅ Simple to implement
 ✅ Lightweight and recommended by the Flutter team
-✅ Easy to scale for this app’s use-case
+✅ Easy to scale for this app’s use case
 
 ⚡ Challenges & Solutions
 1. Handling Recurring Expenses Automatically
