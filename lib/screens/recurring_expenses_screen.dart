@@ -4,11 +4,13 @@ import '../providers/expense_provider.dart';
 import '../models/recurring_expense.dart';
 
 class RecurringExpensesScreen extends StatelessWidget {
+  const RecurringExpensesScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Recurring Expenses'),
+        title: const Text('Recurring Expenses'),
       ),
       body: Consumer<ExpenseProvider>(
         builder: (context, provider, child) {
@@ -40,7 +42,7 @@ class RecurringExpensesScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () => _showAddRecurringExpenseDialog(context),
       ),
     );
@@ -111,7 +113,7 @@ class RecurringExpensesScreen extends StatelessWidget {
                   payee: titleController.text,
                   notes: "",
                   frequency: "Monthly",
-                  nextDueDate: DateTime.now().add(Duration(days: 30)),
+                  nextDueDate: DateTime.now().add(const Duration(days: 30)),
                   isActive: true,
                 );
 

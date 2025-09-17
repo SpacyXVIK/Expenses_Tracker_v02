@@ -57,7 +57,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final LocalAuthentication _localAuth = LocalAuthentication();
   bool _authenticated = false;
-  bool _biometricAvailable = true; // toggleable later via settings
+  final bool _biometricAvailable = true; // toggleable later via settings
   
 
   @override
@@ -89,7 +89,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     if (!_authenticated) {
-      return MaterialApp(
+      return const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           body: Center(

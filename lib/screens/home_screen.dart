@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen>
                 try {
                   await provider.importFromExcel();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Import successful')),
+                    const SnackBar(content: Text('Import successful')),
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -128,14 +128,14 @@ class _HomeScreenState extends State<HomeScreen>
               }
             },
             itemBuilder: (BuildContext context) => [
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'export',
                 child: ListTile(
                   leading: Icon(Icons.upload_file),
                   title: Text('Export to Excel'),
                 ),
               ),
-              PopupMenuItem(
+              const PopupMenuItem(
                 value: 'import',
                 child: ListTile(
                   leading: Icon(Icons.download_rounded),
@@ -194,11 +194,11 @@ class _HomeScreenState extends State<HomeScreen>
                     themeProvider.toggleTheme();
                   },
                 ),ListTile(
-            leading: Icon(Icons.settings),
-            title: Text("Settings"),
+            leading: const Icon(Icons.settings),
+            title: const Text("Settings"),
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => SettingsScreen()),
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
               );
             },
           ),
@@ -209,15 +209,15 @@ class _HomeScreenState extends State<HomeScreen>
       ),
       body: Column(
         children: [
-          ExpenseSearchBar(),
+          const ExpenseSearchBar(),
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
                 buildExpensesByDate(context),
                 buildExpensesByCategory(context),
-                AnalyticsDashboard(),
-                SpendingTrendsChart(), // New tab view
+                const AnalyticsDashboard(),
+                const SpendingTrendsChart(), // New tab view
               ],
             ),
           ),
@@ -303,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen>
 
         return Column(
           children: [
-            MonthlyBudgetWidget(), // Add this at the top
+            const MonthlyBudgetWidget(), // Add this at the top
             Expanded(
               child: ListView.builder(
                 itemCount: filteredExpenses.length,
@@ -426,7 +426,7 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             Expanded(
               child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 300),
                 child: ListView.builder(
                   key: ValueKey(_selectedCategoryId),
                   itemCount: filteredExpenses.length,
@@ -436,10 +436,10 @@ class _HomeScreenState extends State<HomeScreen>
                         DateFormat('MMM dd, yyyy - hh:mm a').format(expense.date);
 
                     return AnimatedScale(
-                      duration: Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 300),
                       scale: 1.0,
                       child: AnimatedOpacity(
-                        duration: Duration(milliseconds: 300),
+                        duration: const Duration(milliseconds: 300),
                         opacity: 1.0,
                         child: ListTile(
                           title: Text(

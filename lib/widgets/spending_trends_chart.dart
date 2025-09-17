@@ -76,12 +76,12 @@ class _SpendingTrendsChartState extends State<SpendingTrendsChart> {
 
     return LineChart(
       LineChartData(
-        gridData: FlGridData(show: true),
+        gridData: const FlGridData(show: true),
         titlesData: FlTitlesData(
-          topTitles: AxisTitles(
+          topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
-          rightTitles: AxisTitles(
+          rightTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
           bottomTitles: AxisTitles(
@@ -117,7 +117,7 @@ class _SpendingTrendsChartState extends State<SpendingTrendsChart> {
             isCurved: true,
             color: Colors.deepPurple,
             barWidth: 3,
-            dotData: FlDotData(show: true),
+            dotData: const FlDotData(show: true),
           ),
         ],
       ),

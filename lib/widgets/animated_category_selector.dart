@@ -20,7 +20,7 @@ class AnimatedCategorySelector extends StatefulWidget {
 class _AnimatedCategorySelectorState extends State<AnimatedCategorySelector> {
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 100,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -30,7 +30,7 @@ class _AnimatedCategorySelectorState extends State<AnimatedCategorySelector> {
           final isSelected = widget.selectedCategory?.id == category.id;
 
           return TweenAnimationBuilder(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             curve: Curves.easeOutCubic,
             tween: Tween<double>(
               begin: 0,
@@ -41,7 +41,7 @@ class _AnimatedCategorySelectorState extends State<AnimatedCategorySelector> {
                 onTap: () => widget.onSelect(category),
                 child: Container(
                   width: 80,
-                  margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   decoration: BoxDecoration(
                     color: Color.lerp(
                       Theme.of(context).cardColor,
@@ -53,7 +53,7 @@ class _AnimatedCategorySelectorState extends State<AnimatedCategorySelector> {
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
                         blurRadius: 8,
-                        offset: Offset(0, 4),
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
@@ -72,7 +72,7 @@ class _AnimatedCategorySelectorState extends State<AnimatedCategorySelector> {
                           size: 32,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         category.name,
                         style: TextStyle(

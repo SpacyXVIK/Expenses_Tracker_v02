@@ -223,7 +223,7 @@ class ExpenseProvider with ChangeNotifier {
             );
             break;
           case 'weekly':
-            nextDueDate = recurring.nextDueDate.add(Duration(days: 7));
+            nextDueDate = recurring.nextDueDate.add(const Duration(days: 7));
             break;
           case 'yearly':
             nextDueDate = DateTime(
