@@ -24,7 +24,7 @@ class ExpenseSearchBar extends StatelessWidget {
                   ? IconButton(
                       icon: const Icon(Icons.clear, color: Colors.deepPurple),
                       onPressed: () {
-                        provider.updateSearchQuery('');
+                        provider.updateSearchQuery(''); FocusScope.of(context).unfocus();
                       },
                     )
                   : const SizedBox.shrink();
