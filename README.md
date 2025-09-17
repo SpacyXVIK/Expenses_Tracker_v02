@@ -29,7 +29,7 @@ Handling theme switching
 
 Managing app settings (biometric)
 
-Note- All Screenshots are provided inside the images folder, so please check out.
+🏞️ Note- All Screenshots are provided inside the images folder, so please check it out.
 
 Why Provider?
 ✅ Simple to implement
